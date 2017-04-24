@@ -1289,7 +1289,7 @@ export class WebClientService {
     }
 
     private _receiveResponseReceivers(message: threema.WireMessage) {
-        this.$log.debug('Received receiver response');
+        this.$log.debug('Received receiver response:', message);
 
         // Unpack and validate data
         const data = message.data;
@@ -1653,7 +1653,7 @@ export class WebClientService {
     }
 
     private _receiveResponseAvatar(message: threema.WireMessage): any {
-        this.$log.debug('Received avatar response');
+        this.$log.debug('Received avatar response:', message);
 
         // Unpack data and arguments
         const args = message.args;

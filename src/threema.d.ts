@@ -150,6 +150,7 @@ declare namespace threema {
         id: string;
         displayName: string;
         color: string;
+        hasAvatar?: boolean; // May be undefined on older app versions
         avatar?: Avatar; // May be set if already fetched
         access: ReceiverAccess;
         locked?: boolean;
