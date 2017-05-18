@@ -34,7 +34,7 @@ export class GroupControllerModel implements threema.ControllerModel {
     private webClientService: WebClientService;
     private avatarController: AvatarControllerModel;
     private mode: ControllerModelMode;
-    private onRemovedCallback: any;
+    private onRemovedCallback: threema.OnRemovedCallback;
 
     constructor($log: ng.ILogService, $translate: ng.translate.ITranslateService, $mdDialog: ng.material.IDialogService,
                 webClientService: WebClientService,
@@ -80,7 +80,7 @@ export class GroupControllerModel implements threema.ControllerModel {
         }
     }
 
-    public setOnRemoved(callback: any): void {
+    public setOnRemoved(callback: threema.OnRemovedCallback): void {
         this.onRemovedCallback = callback;
     }
 

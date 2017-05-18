@@ -26,7 +26,7 @@ export class ContactControllerModel implements threema.ControllerModel {
     private $translate: ng.translate.ITranslateService;
     private $mdDialog: ng.material.IDialogService;
 
-    private onRemovedCallback: any;
+    private onRemovedCallback: threema.OnRemovedCallback;
     public firstName: string;
     public lastName: string;
     public identity: string;
@@ -83,7 +83,7 @@ export class ContactControllerModel implements threema.ControllerModel {
         }
     }
 
-    public setOnRemoved(callback: any): void {
+    public setOnRemoved(callback: threema.OnRemovedCallback): void {
         this.onRemovedCallback = callback;
     }
 

@@ -15,6 +15,7 @@
  * along with Threema Web. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// TODO: Change to list of strings in type declaration
 export enum ControllerModelMode {
     NEW = 1,
     VIEW = 2,

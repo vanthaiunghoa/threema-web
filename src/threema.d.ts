@@ -361,15 +361,48 @@ declare namespace threema {
         data?: T;
     }
 
+    type OnRemovedCallback = (identity: string) => void;
+
     interface ControllerModel {
+        /**
+         * The title shown in the header.
+         */
         subject: string;
+
+        /**
+         * Loading state.
+         */
         isLoading: boolean;
-        save(): any;
+
+        /**
+         * Save the changes, return a promise with the receiver.
+         */
+        save(): Promise<Receiver>;
+
+        /**
+         * Validate this receiver.
+         */
         isValid(): boolean;
+
+        /**
+         * Can this receiver be viewed?
+         */
         canView(): boolean;
+
+        /**
+         * Return whether this receiver can be edited.
+         */
         canEdit(): boolean;
+
+        /**
+         * The mode, e.g. view or edit this receiver.
+         */
         getMode(): number;
-        setOnRemoved(callback: any): void;
+
+        /**
+         * Set the on removed callback.
+         */
+        setOnRemoved(callback: OnRemovedCallback): void;
     }
 
     interface Alert {
