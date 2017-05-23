@@ -108,6 +108,7 @@ declare namespace threema {
         address: string;
         poi: string;
     }
+
     /**
      * All possible receiver types.
      */
@@ -326,9 +327,9 @@ declare namespace threema {
         text: string;
     }
 
-    interface Identity {
+    interface Profile {
         identity: string;
-        publicNickname: String;
+        publicNickname: string;
         publicKey: ArrayBuffer;
         fingerprint: string;
     }
@@ -384,10 +385,10 @@ declare namespace threema {
          */
         isValid(): boolean;
 
-        /**
-         * Can this receiver be viewed?
+        /*
+         * Return whether this receiver can be chatted with.
          */
-        canView(): boolean;
+        canChat(): boolean;
 
         /**
          * Return whether this receiver can be edited.
@@ -395,7 +396,7 @@ declare namespace threema {
         canEdit(): boolean;
 
         /**
-         * The mode, e.g. view or edit this receiver.
+         * The editing mode, e.g. view or edit this receiver.
          */
         getMode(): number;
 

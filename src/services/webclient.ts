@@ -166,7 +166,7 @@ export class WebClientService {
     public receivers: threema.Container.Receivers;
     public alerts: threema.Alert[] = [];
     public defaults: WebClientDefault;
-    private myIdentity: threema.Identity;
+    private profile: threema.Profile;
     private pushToken: string = null;
 
     // Other
@@ -382,7 +382,7 @@ export class WebClientService {
                             this.stateService.updateConnectionBuildupState('closed');
                             break;
                         default:
-                            this.$log.warn('Unknown signaling state:', state);
+                            this.$log.warn(this.logTag, 'Unknown signaling state:', state);
                     }
                 }
                 this.stateService.updateSignalingConnectionState(state);
@@ -419,7 +419,7 @@ export class WebClientService {
         // Handle a disconnect request
         this.salty.on('application', (applicationData: any) => {
             if (applicationData.data.type === 'disconnect') {
-                this.$log.debug('Disconnecting requested');
+                this.$log.debug(this.logTag, 'Disconnecting requested');
                 const deleteStoredData = applicationData.data.forget === true;
                 const resetPush = true;
                 const redirect = true;
@@ -1211,10 +1211,10 @@ export class WebClientService {
     }
 
     /**
-     * Return own identity.
+     * Return own profile.
      */
-    public getMyIdentity(): threema.Identity {
-        return this.myIdentity;
+    public getProfile(): threema.Profile {
+        return this.profile;
     }
 
     /**
@@ -1968,7 +1968,7 @@ export class WebClientService {
         // Set own identity
         let myAccount = args.myAccount;
 
-        this.myIdentity = {
+        this.profile = {
             identity: myAccount.identity,
             publicKey: myAccount.publicKey,
             publicNickname: myAccount.publicNickname,

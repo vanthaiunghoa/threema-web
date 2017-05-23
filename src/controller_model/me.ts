@@ -19,67 +19,71 @@ import {WebClientService} from '../services/webclient';
 import {ControllerModelMode} from '../types/enums';
 import {AvatarControllerModel} from './avatar';
 
-export class ContactControllerModel implements threema.ControllerModel {
+export class MeControllerModel implements threema.ControllerModel {
+    private logTag: string = '[MeControllerModel]';
 
     // Angular services
     private $log: ng.ILogService;
     private $translate: ng.translate.ITranslateService;
     private $mdDialog: ng.material.IDialogService;
 
+    // Own services
+    private webClientService: WebClientService;
+
+    // Callbacks
     private onRemovedCallback: threema.OnRemovedCallback;
-    public firstName: string;
-    public lastName: string;
-    public identity: string;
+
+    // Own receiver instance
+    private me: threema.MeReceiver;
+
+    // Avatar controller
+    private avatarController: AvatarControllerModel;
+
+    // Controller model fields
     public subject: string;
-    public access: threema.ContactReceiverAccess;
     public isLoading = false;
 
-    private contact: threema.ContactReceiver;
-    private webClientService: WebClientService;
-    private firstNameLabel: string;
-    private avatarController: AvatarControllerModel;
-    private mode = ControllerModelMode.NEW;
+    // Data shown on page
+    public nickname: string;
 
-    constructor($log: ng.ILogService, $translate: ng.translate.ITranslateService, $mdDialog: ng.material.IDialogService,
+    // Editing mode
+    private mode = ControllerModelMode.VIEW;
+
+    constructor($log: ng.ILogService,
+                $translate: ng.translate.ITranslateService,
+                $mdDialog: ng.material.IDialogService,
                 webClientService: WebClientService,
                 mode: ControllerModelMode,
-                contact: threema.ContactReceiver = undefined) {
+                me: threema.MeReceiver = undefined) {
         this.$log = $log;
         this.$translate = $translate;
         this.$mdDialog = $mdDialog;
-        this.contact = contact;
+        this.me = me;
         this.webClientService = webClientService;
         this.mode = mode;
 
-        switch (this.getMode()) {
-            case ControllerModelMode.EDIT:
+        switch (mode) {
+            /*case ControllerModelMode.EDIT:
                 this.subject = $translate.instant('messenger.EDIT_RECEIVER', {
                     receiverName: '@NAME@',
-                }).replace('@NAME@', this.contact.displayName);
-                this.firstName = this.contact.firstName;
-                this.lastName = this.contact.lastName;
+                }).replace('@NAME@', this.me.displayName);
+                this.firstName = this.me.firstName;
+                this.lastName = this.me.lastName;
                 this.avatarController = new AvatarControllerModel(
-                    this.$log, this.webClientService, this.contact,
+                    this.$log, this.webClientService, this.me,
                 );
 
-                this.access = this.contact.access;
+                this.access = this.me.access;
                 this.firstNameLabel = this.access.canChangeLastName ?
                     $translate.instant('messenger.FIRST_NAME') :
                     $translate.instant('messenger.NAME');
-                break;
-
+                break;*/
             case ControllerModelMode.VIEW:
-            case ControllerModelMode.CHAT:
-                this.subject = this.contact.displayName;
-                this.access = this.contact.access;
+                this.subject = $translate.instant('messenger.MY_THREEMA_ID');
+                this.nickname = webClientService.getProfile().publicNickname;
                 break;
-
-            case ControllerModelMode.NEW:
-                this.subject = $translate.instant('messenger.ADD_CONTACT');
-                break;
-
             default:
-                $log.error('Invalid controller model mode: ', this.getMode());
+                $log.error(this.logTag, 'Invalid controller model mode: ', this.getMode());
         }
     }
 
@@ -92,38 +96,32 @@ export class ContactControllerModel implements threema.ControllerModel {
     }
 
     public isValid(): boolean {
-        // edit and new is always valid
-        if (this.getMode() === ControllerModelMode.EDIT) {
-            return true;
-        }
-        return this.identity !== undefined && this.identity.length === 8;
+        return (this.me !== null
+             && this.me !== undefined
+             && this.me.id === this.webClientService.me.id);
     }
 
     public canChat(): boolean {
-        return true;
+        // You cannot chat with yourself
+        return false;
     }
 
     public canEdit(): boolean {
-        return this.access !== undefined && (
-            this.access.canChangeAvatar === true
-            || this.access.canChangeFirstName === true
-            || this.access.canChangeLastName === true
-            );
+        // The own contact can always be edited
+        // TODO: Restrictions?
+        // return true;
+        return false;
     }
 
     public save(): Promise<threema.ContactReceiver> {
         switch (this.getMode()) {
             case ControllerModelMode.EDIT:
-                return this.webClientService.modifyContact(
-                    this.contact.id,
-                    this.firstName,
-                    this.lastName,
+                return this.webClientService.modifyProfile(
+                    this.nickname,
                     this.avatarController.getAvatar(),
                 );
-            case ControllerModelMode.NEW:
-                return this.webClientService.addContact(this.identity);
             default:
-                this.$log.error('not allowed to save contact');
+                this.$log.error(this.logTag, 'Not allowed to save profile: Invalid mode');
 
         }
     }

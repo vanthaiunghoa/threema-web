@@ -90,11 +90,11 @@ export class GroupControllerModel implements threema.ControllerModel {
 
     public isValid(): boolean {
         return this.members.filter((identity: string) => {
-                return identity !== this.webClientService.getMyIdentity().identity;
+                return identity !== this.webClientService.getProfile().identity;
             }).length > 0;
     }
 
-    public canView(): boolean {
+    public canChat(): boolean {
         return true;
     }
 
@@ -110,7 +110,7 @@ export class GroupControllerModel implements threema.ControllerModel {
         let confirm = this.$mdDialog.confirm()
             .title(this.$translate.instant('messenger.GROUP_LEAVE'))
             .textContent(this.$translate.instant(
-                this.group.administrator === this.webClientService.getMyIdentity().identity
+                this.group.administrator === this.webClientService.getProfile().identity
                     ? 'messenger.GROUP_REALLY_LEAVE_ADMIN'
                     : 'messenger.GROUP_REALLY_LEAVE'))
             .targetEvent(ev)

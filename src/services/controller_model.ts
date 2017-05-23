@@ -20,6 +20,7 @@ import {DistributionListControllerModel} from '../controller_model/distributionL
 import {GroupControllerModel} from '../controller_model/group';
 import {ControllerModelMode} from '../types/enums';
 import {WebClientService} from './webclient';
+import {MeControllerModel} from "../controller_model/me";
 
 /**
  * Factory to create ControllerModels
@@ -37,6 +38,17 @@ export class ControllerModelService {
         this.$translate = $translate;
         this.$mdDialog = $mdDialog;
         this.webClientService = webClientService;
+    }
+
+    public me(receiver: threema.MeReceiver, mode: ControllerModelMode): threema.ControllerModel {
+        return new MeControllerModel(
+            this.$log,
+            this.$translate,
+            this.$mdDialog,
+            this.webClientService,
+            mode,
+            receiver,
+        );
     }
 
     public contact(receiver: threema.ContactReceiver, mode: ControllerModelMode): threema.ControllerModel {
