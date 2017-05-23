@@ -106,6 +106,10 @@ export class GroupControllerModel implements threema.ControllerModel {
             );
     }
 
+    public canShowQr(): boolean {
+        return false;
+    }
+
     public leave(ev): void {
         let confirm = this.$mdDialog.confirm()
             .title(this.$translate.instant('messenger.GROUP_LEAVE'))

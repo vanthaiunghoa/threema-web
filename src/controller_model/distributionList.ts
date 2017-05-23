@@ -95,6 +95,10 @@ export class DistributionListControllerModel implements threema.ControllerModel 
         return true;
     }
 
+    public canShowQr(): boolean {
+        return false;
+    }
+
     public delete(ev): void {
 
         let confirm = this.$mdDialog.confirm()
