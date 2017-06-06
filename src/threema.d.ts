@@ -44,7 +44,7 @@ declare namespace threema {
 
     type MessageType = 'text' | 'image' | 'video' | 'audio' | 'location' | 'status' | 'ballot' | 'file';
     type MessageState = 'delivered' | 'read' | 'send-failed' | 'sent' | 'user-ack' | 'user-dec' | 'pending' | 'sending';
-    type InitializationStep = 'client info' | 'conversations' |  'receivers';
+    type InitializationStep = 'client info' | 'conversations' |  'receivers' | 'profile';
 
     interface InitializationStepRoutine {
         requiredSteps: InitializationStep[];
@@ -329,9 +329,9 @@ declare namespace threema {
 
     interface Profile {
         identity: string;
-        publicNickname: string;
         publicKey: ArrayBuffer;
-        fingerprint: string;
+        publicNickname?: string;
+        avatar?: ArrayBuffer;
     }
 
     interface TrustedKeyStoreData {

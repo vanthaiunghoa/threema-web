@@ -18,7 +18,6 @@
 import * as msgpack from 'msgpack-lite';
 import {hexToU8a} from '../helpers';
 import {BrowserService} from './browser';
-import {FingerPrintService} from './fingerprint';
 import {TrustedKeyStoreService} from './keystore';
 import {MessageService} from './message';
 import {MimeService} from './mime';
@@ -94,6 +93,7 @@ export class WebClientService {
     private static SUB_TYPE_DISTRIBUTION_LIST = 'distributionList';
     private static SUB_TYPE_ALERT = 'alert';
     private static SUB_TYPE_GROUP_SYNC = 'groupSync';
+    private static SUB_TYPE_PROFILE = 'profile';
     private static ARGUMENT_MODE = 'mode';
     private static ARGUMENT_MODE_REFRESH = 'refresh';
     private static ARGUMENT_MODE_NEW = 'new';
@@ -119,6 +119,8 @@ export class WebClientService {
     private static ARGUMENT_DELETE_TYPE = 'deleteType';
     private static ARGUMENT_ERROR = 'error';
     private static ARGUMENT_MAX_SIZE = 'maxSize';
+    private static ARGUMENT_NICKNAME = 'nickname';
+    private static ARGUMENT_AVATAR = 'avatar';
     private static DATA_FIELD_BLOB_BLOB = 'blob';
     private static DC_LABEL = 'THREEMA';
 
@@ -140,7 +142,6 @@ export class WebClientService {
     private pushService: PushService;
     private browserService: BrowserService;
     private titleService: TitleService;
-    private fingerPrintService: FingerPrintService;
     private qrCodeService: QrCodeService;
     private mimeService: MimeService;
     private receiverService: ReceiverService;
@@ -195,7 +196,7 @@ export class WebClientService {
         '$log', '$rootScope', '$q', '$state', '$window', '$translate', '$filter', '$timeout',
         'Container', 'TrustedKeyStore',
         'StateService', 'NotificationService', 'MessageService', 'PushService', 'BrowserService',
-        'TitleService', 'FingerPrintService', 'QrCodeService', 'MimeService', 'ReceiverService',
+        'TitleService', 'QrCodeService', 'MimeService', 'ReceiverService',
         'VersionService',
         'CONFIG',
     ];
@@ -215,7 +216,6 @@ export class WebClientService {
                 pushService: PushService,
                 browserService: BrowserService,
                 titleService: TitleService,
-                fingerPrintService: FingerPrintService,
                 qrCodeService: QrCodeService,
                 mimeService: MimeService,
                 receiverService: ReceiverService,
@@ -238,7 +238,6 @@ export class WebClientService {
         this.pushService = pushService;
         this.browserService = browserService;
         this.titleService = titleService;
-        this.fingerPrintService = fingerPrintService;
         this.qrCodeService = qrCodeService;
         this.mimeService = mimeService;
         this.receiverService = receiverService;
@@ -490,6 +489,8 @@ export class WebClientService {
                     return;
                 }
 
+                console.log('Incoming msg:', message.type, '/', message.subType, message);
+
                 // Process data
                 this.$rootScope.$apply(() => {
                     this.receive(message);
@@ -681,6 +682,14 @@ export class WebClientService {
         this._sendRequest(WebClientService.SUB_TYPE_CLIENT_INFO, {
             browser: navigator.userAgent,
         });
+    }
+
+    /**
+     * Send a profile request.
+     */
+    public requestProfile(): void {
+        this.$log.debug('Sending profile request');
+        this._sendRequest(WebClientService.SUB_TYPE_PROFILE);
     }
 
     /**
@@ -1206,6 +1215,31 @@ export class WebClientService {
     }
 
     /**
+     * Modify own profile.
+     */
+    public modifyProfile(nickname?: string,
+                         avatar?: ArrayBuffer): Promise<threema.MeReceiver> {
+
+        // Prepare payload data
+        const data = {};
+        if (nickname !== undefined && nickname !== null) {
+            data[WebClientService.ARGUMENT_NICKNAME] = nickname;
+        }
+        if (avatar !== undefined && avatar !== null) {
+            data[WebClientService.ARGUMENT_AVATAR] = avatar;
+        }
+
+        // If no changes happened, resolve the promise immediately.
+        if (Object.keys(data).length === 0) {
+            this.$log.warn(this.logTag, 'Trying to modify profile without any changes');
+            return Promise.resolve(this.me);
+        }
+
+        // Send update, get back promise
+        return this._sendUpdatePromise(WebClientService.SUB_TYPE_PROFILE, null, data);
+    }
+
+    /**
      * Return whether the specified contact is currently typing.
      *
      * This always returns false for groups and distribution lists.
@@ -1310,12 +1344,13 @@ export class WebClientService {
     }
 
     private _requestInitialData(): void {
-        // if all conversations are reloaded, clear the message cache
+        // If all conversations are reloaded, clear the message cache
         // to get in sync (we dont know if a message was removed, updated etc..)
         this.messages.clear(this.$rootScope);
 
         // Request initial data
         this.requestClientInfo();
+        this.requestProfile();
         this.requestReceivers();
         this.requestConversations();
     }
@@ -1972,14 +2007,31 @@ export class WebClientService {
         // Set own identity
         let myAccount = args.myAccount;
 
-        this.profile = {
-            identity: myAccount.identity,
-            publicKey: myAccount.publicKey,
-            publicNickname: myAccount.publicNickname,
-            fingerprint: this.fingerPrintService.generate(myAccount.publicKey),
-        };
+        // Profile information in client info messages is DEPRECATED
+        /*if (this.profile == null) {
+            this.profile = {
+                identity: myAccount.identity,
+                publicKey: myAccount.publicKey,
+                publicNickname: myAccount.publicNickname,
+            };
+        }*/
 
         this.registerInitializationStep('client info');
+    }
+
+    /**
+     * The peer sends information about the current user profile.
+     */
+    private _receiveResponseProfile(message: threema.WireMessage): void {
+        this.$log.debug('Received profile');
+        const data: threema.Profile = message.data;
+        if (data === undefined || data === null) {
+            this.$log.warn('Invalid profile, data missing');
+            return;
+        }
+        this.profile = data;
+        // TODO: Eventually add this to required steps
+        this.registerInitializationStep('profile');
     }
 
     public setPassword(password: string) {
@@ -2121,13 +2173,13 @@ export class WebClientService {
     }
 
     private _sendPromiseMessage(message: threema.WireMessage, timeout: number = null): Promise<any> {
-        // create arguments on wired message
-        if (message.args === undefined) {
+        // Create arguments on wired message
+        if (message.args === null || message.args === undefined) {
             message.args = {};
         }
         let promiseId = message.args[WebClientService.ARGUMENT_TEMPORARY_ID];
         if (promiseId === undefined) {
-            // create a random id to identity the promise
+            // Create a random id to identify the promise
             promiseId = 'p' + Math.random().toString(36).substring(7);
             message.args[WebClientService.ARGUMENT_TEMPORARY_ID] = promiseId;
         }
@@ -2269,6 +2321,9 @@ export class WebClientService {
             case WebClientService.SUB_TYPE_CLIENT_INFO:
                 this._receiveResponseClientInfo(message);
                 break;
+            case WebClientService.SUB_TYPE_PROFILE:
+                receiveResult = this._receiveResponseProfile(message);
+                break;
             case WebClientService.SUB_TYPE_CONTACT_DETAIL:
                 receiveResult = this._receiveResponseContactDetail(message);
                 break;
@@ -2377,6 +2432,7 @@ export class WebClientService {
      */
     private send(message: threema.WireMessage): void {
         this.$log.debug('Sending', message.type + '/' + message.subType, 'message');
+        console.log('Outgoing msg:', message.type, '/', message.subType, message);
         const bytes: Uint8Array = this.msgpackEncode(message);
         this.secureDataChannel.send(bytes);
     }
