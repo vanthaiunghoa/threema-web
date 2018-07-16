@@ -1,13 +1,14 @@
 @mixin word-wrap() {
-	overflow-wrap: break-word;
-	word-wrap: break-word;
-	word-break: break-word;
-	-ms-hyphens: auto;
-	-webkit-hyphens: auto;
-	hyphens: auto;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+    -ms-hyphens: auto;
+    word-break: break-word;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
+
 @mixin ellipsis() {
-	overflow: hidden;
-	white-space: nowrap;
-	text-overflow: ellipsis;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }

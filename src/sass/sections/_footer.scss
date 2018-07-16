@@ -1,8 +1,8 @@
 footer {
-    height: $footer-height;
     margin-top: 12px;
+    height: $footer-height;
     text-align: center;
-    font-size: 0.9em;
+    font-size: .9em;
     font-weight: 300;
 
     ul {
@@ -13,15 +13,15 @@ footer {
             white-space: nowrap;
 
             &:not(:last-child):after {
-                content: " \25CF";
-                font-size: 10px;
                 position: relative;
                 top: -2px;
                 margin: 0 4px;
+                font-size: 10px;
+                content: ' \25CF';
             }
 
             a {
-                color: white !important;
+                color: #fff !important;
                 &:hover {
                     text-decoration: underline;
                 }

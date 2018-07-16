@@ -1,10 +1,8 @@
 // Config variables
-
 $circle-size: 50px;
 $loading-ring-thickness: 5px;
 
 // Animations
-
 @keyframes file-download-rotater {
     0% {
         transform: rotate(0deg);
@@ -14,9 +12,7 @@ $loading-ring-thickness: 5px;
     }
 }
 
-
 // Styling
-
 .message-media {
 
     .in-view-indicator {
@@ -27,41 +23,43 @@ $loading-ring-thickness: 5px;
 
     // up/downloading circle element
     .circle {
-        height: $circle-size;
+        display: flex;
+        position: relative;
+        outline: none;
+        border-radius: $circle-size / 2;
+        background-color: #808080;
         width: $circle-size;
         min-width: $circle-size;
+        height: $circle-size;
         min-height: $circle-size;
-        background-color: grey;
-        outline: none;
-        position: relative;
-        border-radius: $circle-size / 2;
-        display: flex;
+
         // centering element
         &.center {
             margin: 0 auto;
         }
+
         i,
         img {
-            color: white;
-            margin: auto auto;
             position: relative;
-            background: rgba(128, 128, 128, .3);
+            margin: auto auto;
             border-radius: $material-radius;
+            background: rgba(128, 128, 128, .3);
+            color: #fff;
         }
     }
 
     // Loading indicator
     .loading.active {
         display: block;
-        width: $circle-size - 2 * $loading-ring-thickness;
-        height: $circle-size - 2 * $loading-ring-thickness;
-        border: $loading-ring-thickness solid rgba(0, 0, 0, 0.1);
-        border-left-color: lightgreen;
-        animation: file-download-rotater 1.1s infinite linear;
-        border-radius: 50%;
         position: absolute;
         top: 0;
         left: 0;
+        animation: file-download-rotater 1.1s infinite linear;
+        border: $loading-ring-thickness solid rgba(0, 0, 0, .1);
+        border-radius: 50%;
+        border-left-color: #90ee90;
+        width: $circle-size - 2*$loading-ring-thickness;
+        height: $circle-size - 2*$loading-ring-thickness;
     }
 
     // Thumbnails (Images, GIFs, Locations, ...)
@@ -79,39 +77,38 @@ $loading-ring-thickness: 5px;
         .loading-wrapper {
             display: none;
             &.active {
-                z-index: 10;
                 display: block;
+                z-index: 10;
             }
         }
-
-        // max size of a thumbnail
 
         // Styling of loader
         .loading-wrapper {
             position: absolute;
+            background-color: rgba(0, 0, 0, .2);
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.2);
             .loading {
                 display: block;
                 position: absolute;
                 top: calc(50% - #{$circle-size/2} - 1em);
                 left: calc(50% - #{$circle-size/2});
+                animation: file-download-rotater 1.1s infinite linear;
+                border: $loading-ring-thickness solid rgba(255, 255, 255, .3);
+                border-radius: 50%;
+                border-left-color: #90ee90;
                 width: $circle-size - 2 * $loading-ring-thickness;
                 height: $circle-size - 2 * $loading-ring-thickness;
-                border: $loading-ring-thickness solid rgba(255, 255, 255, 0.3);
-                border-left-color: lightgreen;
-                animation: file-download-rotater 1.1s infinite linear;
-                border-radius: 50%;
             }
+
             .loading-text {
                 display: block;
-                text-align: center;
-                width: 100%;
-                color: white;
-                height: 1em;
                 position: absolute;
                 top: calc(50% + #{$circle-size/2});
+                width: 100%;
+                height: 1em;
+                text-align: center;
+                color: #fff;
             }
         }
 
@@ -121,13 +118,13 @@ $loading-ring-thickness: 5px;
                 width: 100%;
                 height: 100%;
                 i {
-                    line-height: $circle-size;
-                    font-size: $circle-size;
                     position: absolute;
                     top: calc(50% - #{$circle-size/2});
                     left: calc(50% - #{$circle-size/2});
-                    background: rgba(128, 128, 128, 0.6);
-                    border-radius: $circle-size - (2 * $loading-ring-thickness);
+                    border-radius: $circle-size - (2*$loading-ring-thickness);
+                    background: rgba(128, 128, 128, .6);
+                    line-height: $circle-size;
+                    font-size: $circle-size;
                 }
             }
         }
@@ -144,17 +141,17 @@ $loading-ring-thickness: 5px;
 
         .info {
             position: relative;
-            margin-left: $circle-size + 16px;
             top: -$circle-size;
+            margin-left: $circle-size + 16px;
             height: $circle-size;
             line-height: $circle-size;
             p {
                 margin: 0;
-                line-height: normal;
                 padding: 0;
-                font-size: 10pt;
-                text-overflow: ellipsis;
                 overflow: hidden;
+                text-overflow: ellipsis;
+                line-height: normal;
+                font-size: 10pt;
             }
 
             p:first-child {

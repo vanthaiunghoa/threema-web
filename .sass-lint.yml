@@ -18,3 +18,10 @@ rules:
   property-sort-order:
     - 2
     - order: concentric
+
+# Auto-Fix Configuration
+resolvers:
+  # Prevent removing comments
+  no-css-comments: 0
+  # Prevent removing "!important"
+  no-important: 0

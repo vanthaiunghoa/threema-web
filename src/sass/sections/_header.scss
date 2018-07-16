@@ -1,16 +1,15 @@
 header {
-    text-align: center;
     height: $header-height;
-    //background-color: #009688;
+    text-align: center;
 }
 
 #title {
     #logo {
         width: 100%;
         svg {
-            width: 220px;
             margin: 0 auto;
-            fill: white;
+            width: 220px;
+            fill: #fff;
         }
     }
     position: relative;
