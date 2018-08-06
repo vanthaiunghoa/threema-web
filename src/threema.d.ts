@@ -744,6 +744,7 @@ declare namespace threema {
         SessionDeleted = 'delete',
         WebclientDisabled = 'disable',
         SessionReplaced = 'replace',
+        SessionError = 'error',
     }
 
     namespace Container {
