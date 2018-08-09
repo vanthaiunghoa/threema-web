@@ -186,7 +186,11 @@
         "MUTED_NONE": "Keine Benachrichtigungen",
         "MUTED_MENTION_ONLY": "Nur bei Erwähnung benachrichtigen",
         "MUTED_SILENT": "Stumme Benachrichtigungen",
-        "ALL": "Alle"
+        "ALL": "Alle",
+        "PINNED_CONVERSATION": "Unterhaltung ist angepinnt. Klicken, um sie zu entpinnen.",
+        "UNPINNED_CONVERSATION": "Unterhaltung ist nicht angepinnt. Klicken, um sie anzupinnen.",
+        "PINNED_CONVERSATION_OK": "Unterhaltung wurde angepinnt",
+        "UNPINNED_CONVERSATION_OK": "Unterhaltung wurde entpinnt"
     },
     "messageStates": {
         "WE_ACK": "Sie haben ein Daumen-Hoch gesendet",

@@ -338,3 +338,17 @@ export function hasValue(val: any): boolean {
 export function sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+/**
+ * Create a shallow copy of an object.
+ */
+export function copyShallow<T extends object>(obj: T): T {
+    return Object.assign({}, obj);
+}
+
+/**
+ * Create a deep copy of an object by serializing and deserializing it.
+ */
+export function copyDeep<T extends object>(obj: T): T {
+    return JSON.parse(JSON.stringify(obj));
+}

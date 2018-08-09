@@ -185,7 +185,11 @@
         "MUTED_NONE": "No notifications",
         "MUTED_MENTION_ONLY": "Only show notification when mentioned",
         "MUTED_SILENT": "Silent notifications",
-        "ALL": "All"
+        "ALL": "All",
+        "PINNED_CONVERSATION": "Conversation is pinned. Click to unpin.",
+        "UNPINNED_CONVERSATION": "Conversation is not pinned. Click to pin.",
+        "PINNED_CONVERSATION_OK": "Conversation was pinned",
+        "UNPINNED_CONVERSATION_OK": "Conversation was unpinned"
     },
     "messageStates": {
         "WE_ACK": "You sent thumbs-up",

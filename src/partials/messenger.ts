@@ -233,6 +233,7 @@ class ConversationController {
 
     // The conversation receiver
     public receiver: threema.Receiver;
+    public conversation: threema.Conversation;
     public type: threema.ReceiverType;
 
     // The conversation messages
@@ -342,9 +343,10 @@ class ConversationController {
             }, 100, this), supportsPassive() ? {passive: true} : false);
         }
 
-        // Set receiver and type
+        // Set receiver, conversation and type
         try {
             this.receiver = webClientService.receivers.getData({type: $stateParams.type, id: $stateParams.id});
+            this.conversation = this.webClientService.conversations.find(this.receiver);
             this.type = $stateParams.type;
 
             if (this.receiver.type === undefined) {
@@ -494,6 +496,14 @@ class ConversationController {
                 .textContent(errorMessage)
                 .position('bottom center'));
     }
+
+    public showMessage(msgTranslation: string, toastLength = 4000) {
+        this.$mdToast.show(
+            this.$mdToast.simple()
+                .textContent(this.$translate.instant(msgTranslation))
+                .position('bottom center'));
+    }
+
     /**
      * Submit function for input field. Can contain text or file data.
      * Return whether sending was successful.
@@ -837,6 +847,26 @@ class ConversationController {
     private updateScrollJump(): void {
         const chat = this.domChatElement;
         this.showScrollJump = chat.scrollHeight - (chat.scrollTop + chat.offsetHeight) > 10;
+    }
+
+    /**
+     * Mark the current conversation as pinned.
+     */
+    public pinConversation(): void {
+        this.webClientService
+            .modifyConversation(this.conversation, true)
+            .then(() => this.showMessage('messenger.PINNED_CONVERSATION_OK'))
+            .catch((msg) => this.$log.error(this.logTag, 'Pinning conversation failed: ' + msg));
+    }
+
+    /**
+     * Mark the current conversation as not pinned.
+     */
+    public unpinConversation(): void {
+        this.webClientService
+            .modifyConversation(this.conversation, false)
+            .then(() => this.showMessage('messenger.UNPINNED_CONVERSATION_OK'))
+            .catch((msg) => this.$log.error(this.logTag, 'Unpinning conversation failed: ' + msg));
     }
 }
 

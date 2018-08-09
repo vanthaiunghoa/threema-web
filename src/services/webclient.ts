@@ -22,7 +22,7 @@
 import {StateService as UiStateService} from '@uirouter/angularjs';
 
 import * as msgpack from 'msgpack-lite';
-import {hasFeature, hasValue, hexToU8a, msgpackVisualizer} from '../helpers';
+import {copyDeep, hasFeature, hasValue, hexToU8a, msgpackVisualizer} from '../helpers';
 import {
     isContactReceiver, isDistributionListReceiver, isGroupReceiver,
     isValidDisconnectReason, isValidReceiverType,
@@ -1513,6 +1513,32 @@ export class WebClientService {
     }
 
     /**
+     * Modify a conversation.
+     */
+    public modifyConversation(conversation: threema.Conversation, isPinned?: boolean): Promise<null> {
+        const DATA_STARRED = 'isStarred';
+
+        // Prepare payload data
+        const args = {
+            [WebClientService.ARGUMENT_RECEIVER_TYPE]: conversation.type,
+            [WebClientService.ARGUMENT_RECEIVER_ID]: conversation.id,
+        };
+        const data = {};
+        if (isPinned !== undefined && isPinned !== null) {
+            data[DATA_STARRED] = isPinned;
+        }
+
+        // If no changes happened, resolve promise immediately.
+        if (Object.keys(data).length === 0) {
+            this.$log.warn(this.logTag, 'Trying to modify conversation without any changes');
+            return Promise.resolve(null);
+        }
+
+        // Send update, get back promise
+        return this._sendUpdatePromise(WebClientService.SUB_TYPE_CONVERSATION, args, data, 10000);
+    }
+
+    /**
      * Return whether the specified contact is currently typing.
      */
     public isTyping(contact: threema.ContactReceiver): boolean {
@@ -2269,7 +2295,7 @@ export class WebClientService {
                 // To find out, we'll look at the unread count. If it has been
                 // incremented, it must be a new message.
                 if (data.unreadCount > 0) {
-                    const oldConversation = this.conversations.updateOrAdd(data);
+                    const oldConversation = this.conversations.updateOrAdd(data, true);
                     if (oldConversation === null) {
                         this.onNewMessage(data.latestMessage, data, receiver);
                     } else {
@@ -2716,7 +2742,7 @@ export class WebClientService {
         this.send(message);
     }
 
-    private _sendPromiseMessage(message: threema.WireMessage, timeout: number = null): Promise<any> {
+    private _sendPromiseMessage(message: threema.WireMessage, timeoutMs: number = null): Promise<any> {
         // Create arguments on wired message
         if (message.args === undefined || message.args === null) {
             message.args = {};
@@ -2736,11 +2762,11 @@ export class WebClientService {
                 } as threema.PromiseCallbacks;
                 this.requestPromises.set(promiseId, p);
 
-                if (timeout !== null && timeout > 0) {
+                if (timeoutMs !== null && timeoutMs > 0) {
                     this.$timeout(() => {
                         p.reject('timeout');
                         this.requestPromises.delete(promiseId);
-                    }, timeout);
+                    }, timeoutMs);
                 }
 
                 this.send(message);
@@ -3072,7 +3098,7 @@ export class WebClientService {
         // If desired, log message type / subtype
         if (this.config.MSG_DEBUGGING) {
             // Deep copy message to prevent issues with JS debugger
-            const deepcopy = JSON.parse(JSON.stringify(message));
+            const deepcopy = copyDeep(message);
             this.$log.debug('[Message] Incoming:', message.type, '/', message.subType, deepcopy);
         }
 
